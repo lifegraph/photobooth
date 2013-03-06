@@ -86,13 +86,17 @@ app.use(oauth.middleware(function (req, res, next) {
 
 // connect lifegraph serial port
 lifegraph_serial.setPidCallback(arduino_port, function(pid) {
-  lifegraph.connect(pid, function (error, facebookUser) {
+  lifegraph.connect(pid, function (error, user) {
 
     // There was an error (like the device hasn't been synced yet)
     if (error) {
-
-    } else {
-
+      if (error == 404) { // not bound
+        return console.log({'error': "Physical ID has not been bound to an account. Go to http://connect.lifegraphlabs.com/, Connect with Music Player App, and tap again."});
+      } else if (error == 406) { // no tokens, no access
+        return console.log({'error': "No tokens found. User may have revoked access."});
+      }
+    } else { // all good. we have a facebook user
+      // DO SOMETHING
     }
   });
 });
