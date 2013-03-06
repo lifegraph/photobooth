@@ -2,7 +2,8 @@ var express = require('express'),
     http = require('http'),
     path = require('path'),
     lifegraph = require('lifegraph'),
-    rem = require('rem');
+    rem = require('rem')
+    socketio = require('socket.io');
 
 var lifegraph_serial = require('./controllers/lifegraph_serial');
 
@@ -15,6 +16,9 @@ var arduino_port = "/dev/tty.usbmodemfd121";
 
 var app = express();
 var server = http.createServer(app);
+
+var io = socketio.listen(server);
+var mostRecentSocket = null; // we only want one socket max.
 
 app.configure(function () {
   app.set('port', process.env.PORT || 3000);
@@ -97,7 +101,18 @@ lifegraph_serial.setPidCallback(arduino_port, function(pid) {
         return console.log({'error': "No tokens found. User may have revoked access."});
       }
     } else { // all good. we have a facebook user
-      // DO SOMETHING
+      if (mostRecentSocket) {
+        mostRecentSocket.emit('startPhoto');
+      }
+    }
+  });
+});
+
+io.sockets.on('connection', function (socket) {
+  mostRecentSocket = socket;
+  socket.on('disconnect', function () {
+    if (mostRecentSocket == socket) {
+      mostRecentSocket = null;
     }
   });
 });
