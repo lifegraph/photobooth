@@ -1,10 +1,16 @@
 var express = require('express'),
     http = require('http'),
-    path = require('path');
+    path = require('path'),
+    lifegraph = require('lifegraph');
+
+var lifegraph_serial = require('./controllers/lifegraph_serial');
 
 /**
  * App configuration.
  */
+
+// where the arduino is
+var arduino_port = "/dev/tty.usbmodemfd121";
 
 var app = express();
 var server = http.createServer(app);
@@ -26,15 +32,21 @@ app.configure(function () {
 
 app.configure('development', function () {
   app.set('host', 'localhost:' + app.get('port'));
-  app.set('fbapp', 'lifegraph-local');
   app.use(express.logger('dev'));
   app.use(express.errorHandler());
 });
 
-app.configure('production', function () {
-  app.set('fbapp', 'lifegraph');
-  app.set('host', 'connect.lifegraphlabs.com')
-})
+lifegraph_serial.setPidCallback(arduino_port, function(pid) {
+  lifegraph.connect(pid, function (error, facebookUser) {
+
+    // There was an error (like the device hasn't been synced yet)
+    if (error) {
+
+    } else {
+
+    }
+  });
+});
 
 /**
  * Routes
