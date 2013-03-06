@@ -36,6 +36,8 @@ var fb = rem.connect('facebook.com', '1.0').configure({
   secret: process.env.FB_SECRET
 });
 
+lifegraph.configure(process.env.FB_NAMESPACE, process.env.FB_KEY, process.env.FB_SECRET);
+
 // Crudely store user access tokens in a global hash for the duration of
 // the Heroku app's life.
 //
