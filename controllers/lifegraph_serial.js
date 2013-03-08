@@ -31,7 +31,7 @@ exports.setPidCallback = function(arduino_port, onPid) {
       // Grab the uid
       var pid = data.substring(prefix.length).trim();
 
-      console.log("Server received tap from: " + pid);
+      // console.log("Server received tap from: " + pid);
 
       // Callback with the pid
       onPid(pid);
