@@ -13,7 +13,11 @@ function snapshot() {
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
     // "image/webp" works in Chrome 18. In other browsers, this will fall back to image/png.
-    document.querySelector('img').src = canvas.toDataURL('image/webp');
+    var datauri = canvas.toDataURL('image/png');
+    document.querySelector('img').src = datauri;
+    $.post('/upload', {datauri: datauri}, function (data) {
+      console.log(data);
+    });
   }
 }
 

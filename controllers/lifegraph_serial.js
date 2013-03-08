@@ -4,11 +4,11 @@ var serialport = require("serialport");
 // Grab a reference to SerialPort
 var SerialPort = serialport.SerialPort;
 
-
 // arduino_port is path of arduino USB port
 // onPid is a function that gets called when there is a pid
 exports.setPidCallback = function(arduino_port, onPid) {
   // Open up comm on the serial port. Put a newline at the end
+  console.log(arduino_port);
   var serialPort = new SerialPort(arduino_port, { 
     parser: serialport.parsers.readline("\n") 
   });
@@ -20,6 +20,7 @@ exports.setPidCallback = function(arduino_port, onPid) {
 
   // After initialized, when we get a tag from the RF Reader
   serialPort.on("data", function (data) {
+    // console.log("data", data);
 
     // The prefix we set before the uid on the arduino end of things
     var prefix = "  UID Value: "; // The prefix before the data we care about comes through
@@ -28,9 +29,9 @@ exports.setPidCallback = function(arduino_port, onPid) {
     if (data.indexOf(prefix) == 0) {
 
       // Grab the uid
-      pID = data.substring(prefix.length).trim();
+      var pid = data.substring(prefix.length).trim();
 
-      // console.log("Server received tap from: " + pID);
+      console.log("Server received tap from: " + pid);
 
       // Callback with the pid
       onPid(pid);
