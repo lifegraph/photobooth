@@ -6,10 +6,12 @@
     "jade": "~0.28.2",
     "serialport": "~1.0.8",
     "lifegraph": "~0.0.4",
-    "rem": "~0.6.3-2"
+    "rem": "~0.6.3-2",
+    "socket.io": "~0.9.13",
+    "form-data": "0.0.7"
   },
   "engines": {
-    "node": "0.8.x",
-    "npm": "1.1.x"
+    "node": "0.10.x",
+    "npm": "1.2.x"
   }
 }

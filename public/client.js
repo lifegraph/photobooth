@@ -7,6 +7,7 @@ var ctx = canvas.getContext('2d');
 var localMediaStream = null;
 
 function snapshot() {
+  console.log("snapshot");
   ctx.width = video.width;
   if (localMediaStream) {
     canvas.width = video.videoWidth;
@@ -21,8 +22,44 @@ function snapshot() {
   }
 }
 
-video.addEventListener('click', snapshot, false);
+function preSnapshot(){
+  // does the countdown
 
+  console.log('presnapshot');
+  $("#countdown").show();
+
+  var count = 5;
+  countdown();
+  
+  function countdown() {
+    console.log("counting down", count);
+    $("#countdown").html(count);
+    count--;
+    if (count < 0) {
+      $("#countdown").hide();
+      snapshot();
+    }
+    else {
+      setTimeout(countdown, 1000);
+    }
+  }
+}
+
+// video.addEventListener('click', snapshot, false);
+
+$(document).keyup(function(e){
+  // console.log("e", e.keyCode);
+  if(e.keyCode == 32){
+    // user has pressed space
+    var notice = $('#notice');
+    if (notice.is(":visible")) {
+      // toggle the visibility
+      notice.toggle();
+    } else {
+      preSnapshot(); // take the picture
+    }
+  }
+});
 
 function startVideo() {
   navigator.getUserMedia({video: true}, function(stream) {
@@ -42,3 +79,10 @@ var socket = io.connect('http://localhost');
 socket.on('startPhoto', function () {
   video.click();
 });
+
+// display info message
+$('#got-it').click(function(){
+  $('#notice').hide();
+});
+
+$("#countdown").hide();
