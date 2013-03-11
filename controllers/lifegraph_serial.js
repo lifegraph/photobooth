@@ -1,15 +1,15 @@
 // Include the serial port module for comm with Arduino
 var serialport = require("serialport");
+var lifegraph = require("lifegraph");
 
 // Grab a reference to SerialPort
 var SerialPort = serialport.SerialPort;
 
 // arduino_port is path of arduino USB port
 // onPid is a function that gets called when there is a pid
-exports.setPidCallback = function(arduino_port, onPid) {
+exports.setPidCallback = function(onPid) {
   // Open up comm on the serial port. Put a newline at the end
-  console.log(arduino_port);
-  var serialPort = new SerialPort(arduino_port, { 
+  var serialPort = new SerialPort(lifegraph.serialpath(), { 
     parser: serialport.parsers.readline("\n") 
   });
 
@@ -31,7 +31,7 @@ exports.setPidCallback = function(arduino_port, onPid) {
       // Grab the uid
       var pid = data.substring(prefix.length).trim();
 
-      // console.log("Server received tap from: " + pid);
+      console.log("Server received tap from: " + pid);
 
       // Callback with the pid
       onPid(pid);

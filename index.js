@@ -12,9 +12,6 @@ var lifegraph_serial = require('./controllers/lifegraph_serial');
  * App configuration.
  */
 
-// where the arduino is
-var arduino_port = "/dev/tty.usbmodem1411";
-
 var app = express();
 var server = http.createServer(app);
 
@@ -46,7 +43,7 @@ var fb = rem.connect('facebook.com', '1.0').configure({
 lifegraph.configure(process.env.FB_NAMESPACE, process.env.FB_KEY, process.env.FB_SECRET);
 
 // connect lifegraph serial port
-lifegraph_serial.setPidCallback(arduino_port, function(pid) {
+lifegraph_serial.setPidCallback( function(pid) {
   lifegraph.connect(pid, function (error, user) {
 
     // There was an error (like the device hasn't been synced yet)
