@@ -80,6 +80,10 @@ app.get('/', function(req, res) {
   res.render('index.jade');
 });
 
+app.get('/login', function(req, res) {
+  res.redirect('/');
+});
+
 app.post('/upload', function (req, res) {
   if (!mostRecentTokens) {
     return res.json({error: "Not logged in."});

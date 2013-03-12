@@ -13,7 +13,6 @@ function snapshot() {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
-    // "image/webp" works in Chrome 18. In other browsers, this will fall back to image/png.
     var datauri = canvas.toDataURL('image/png');
     document.querySelector('img').src = datauri;
     $.post('/upload', {datauri: datauri}, function (data) {
@@ -28,7 +27,7 @@ function preSnapshot(){
   console.log('presnapshot');
   $("#countdown").show();
 
-  var count = 5;
+  var count = 3;
   countdown();
   
   function countdown() {
