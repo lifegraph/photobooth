@@ -76,7 +76,7 @@ startVideo();
 
 var socket = io.connect('http://localhost');
 socket.on('startPhoto', function () {
-  video.click();
+  preSnapshot(); // take the picture
 });
 
 // display info message
