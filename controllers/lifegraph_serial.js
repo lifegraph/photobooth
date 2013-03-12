@@ -7,9 +7,14 @@ var SerialPort = serialport.SerialPort;
 
 // arduino_port is path of arduino USB port
 // onPid is a function that gets called when there is a pid
-exports.setPidCallback = function(onPid) {
+exports.setPidCallback = function(path, onPid) {
+
+  if (onPid === undefined) {
+    onPid = path;
+    path = lifegraph.serialpath()
+  }
   // Open up comm on the serial port. Put a newline at the end
-  var serialPort = new SerialPort(lifegraph.serialpath(), { 
+  var serialPort = new SerialPort(path, { 
     parser: serialport.parsers.readline("\n") 
   });
 
