@@ -94,7 +94,7 @@ app.post('/upload', function (req, res) {
   var datauri = req.body.datauri;
   // console.log("datauri", datauri);
   var form = new FormData();
-  form.append('message', 'I took a photo with Photobooth!');
+  form.append('message', getCaption());
   // console.log(datauri);
   var base64Data = datauri.replace(/^data:image\/png;base64,/,"");
   // console.log(base64Data);
@@ -108,6 +108,23 @@ app.post('/upload', function (req, res) {
   }));
 });
 
+function getCaption() {
+  var captions = ['I took a photo with Photobooth!',
+                  'Picture evidence that I look awesome today.',
+                  'Can you believe this?',
+                  'I look so good.',
+                  'Totally rocking it.',
+                  'What do you think?',
+                  'I won best looking!',
+                  'I didn\'t even break the camera.',
+                  'I should take a picture every day.',
+                  'You would not believe the insanity.',
+                  'Thinking of you and making this face.',
+                  'Did you get your photo taken today?',
+                  'Pics: Therefore, it happened.',
+                  'Golly, I love http://lifegraphlabs.com'];
+  return captions[Math.floor(Math.random() * captions.length)];
+}
 
 /**
  * Launch.
