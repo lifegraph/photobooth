@@ -116,3 +116,15 @@ socket.on('savedPhoto', function (data) {
   $('#savedPhoto').fadeOut(4000);
 });
 
+socket.on('pidError', function (errcode) {
+  if (errcode == 404) { // not bound
+    $('#saveMessage').html("You need to sync your card at <a href= \"http://lifegraphconnect.com\">http://lifegraphconnect.com</a>");
+    $('#savedPhoto').show();
+    $('#savedPhoto').fadeOut(5000);
+  } else if (errcode == 406) { // not authed
+    $('#saveMessage').html("You need to allow access to Photobooth at <a href= \"http://lifegraphconnect.com\">http://lifegraphconnect.com</a>");
+    $('#savedPhoto').show();
+    $('#savedPhoto').fadeOut(5000);
+  }
+})
+

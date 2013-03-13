@@ -95,9 +95,16 @@ try {
       // There was an error (like the device hasn't been synced yet)
       if (error) {
         if (error == 404) { // not bound
-          return console.log({'error': "Physical ID has not been bound to an account. Go to http://connect.lifegraphlabs.com/, Connect with Music Player App, and tap again."});
+          console.log({'error': "Physical ID has not been bound to an account. Go to http://connect.lifegraphlabs.com/, Connect with Music Player App, and tap again."});
+          if (mostRecentSocket) {
+            mostRecentSocket.emit('pidError', 404);
+          }
+          return;
         } else if (error == 406) { // no tokens, no access
-          return console.log({'error': "No tokens found. User may have revoked access."});
+          console.log({'error': "No tokens found. User may have revoked access."});
+          if (mostRecentSocket) {
+            mostRecentSocket.emit('pidError', 406);
+          }
         }
       } else { // all good. we have a facebook user
         if (mostRecentSocket) {
