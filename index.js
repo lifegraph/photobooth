@@ -4,7 +4,8 @@ var express = require('express'),
     lifegraph = require('lifegraph'),
     rem = require('rem'),
     socketio = require('socket.io'),
-    FormData = require('form-data');
+    FormData = require('form-data'), 
+    fs = require('fs');
 
 var lifegraph_serial = require('./controllers/lifegraph_serial');
 
@@ -40,27 +41,55 @@ var fb = rem.connect('facebook.com', '1.0').configure({
   secret: process.env.FB_SECRET
 });
 
-lifegraph.configure(process.env.FB_NAMESPACE, process.env.FB_KEY, process.env.FB_SECRET);
-
-// connect lifegraph serial port
-lifegraph_serial.setPidCallback( function(pid) {
-  lifegraph.connect(pid, function (error, user) {
-
-    // There was an error (like the device hasn't been synced yet)
-    if (error) {
-      if (error == 404) { // not bound
-        return console.log({'error': "Physical ID has not been bound to an account. Go to http://connect.lifegraphlabs.com/, Connect with Music Player App, and tap again."});
-      } else if (error == 406) { // no tokens, no access
-        return console.log({'error': "No tokens found. User may have revoked access."});
+// The oauth middleware intercepts the callback url that we set when we
+// created the oauth middleware.
+var oauth = rem.oauth(fb, 'http://' + app.get('host') + '/oauth/callback/');
+app.use(oauth.middleware(function (req, res, next) {
+  console.log("User is now authenticated.");
+  var user = oauth.session(req);
+  user('me').get(function (err, json) {
+    user.saveState(function (state) {
+      if (err || !json.id) {
+        res.redirect('/error');
       }
-    } else { // all good. we have a facebook user
-      if (mostRecentSocket) {
-        mostRecentTokens = user.tokens;
-        mostRecentSocket.emit('startPhoto');
-      }
-    }
+
+      // send off the picture to be saved by facebook
+      // storeCredentials(json.id, state, function () {
+      //   res.redirect('/');
+      // });
+      post_photo(user, function (json) {
+        res.json(json);;
+      });
+    });
   });
-});
+}));
+
+try {
+  lifegraph.configure(process.env.FB_NAMESPACE, process.env.FB_KEY, process.env.FB_SECRET);
+
+  // connect lifegraph serial port
+  lifegraph_serial.setPidCallback( function(pid) {
+    lifegraph.connect(pid, function (error, user) {
+
+      // There was an error (like the device hasn't been synced yet)
+      if (error) {
+        if (error == 404) { // not bound
+          return console.log({'error': "Physical ID has not been bound to an account. Go to http://connect.lifegraphlabs.com/, Connect with Music Player App, and tap again."});
+        } else if (error == 406) { // no tokens, no access
+          return console.log({'error': "No tokens found. User may have revoked access."});
+        }
+      } else { // all good. we have a facebook user
+        if (mostRecentSocket) {
+          mostRecentTokens = user.tokens;
+          mostRecentSocket.emit('startPhoto');
+        }
+      }
+    });
+  });
+} catch (e) {
+  console.log("problem with lifegraph connect serial", e);
+}
+
 
 io.sockets.on('connection', function (socket) {
   mostRecentSocket = socket;
@@ -84,14 +113,32 @@ app.get('/login', function(req, res) {
   res.redirect('/');
 });
 
+app.get('/send_to_fb/', oauth.login({
+  // upload if they log in via the site
+  scope: ['publish_stream']
+}));
+
+var datauri; 
 app.post('/upload', function (req, res) {
-  if (!mostRecentTokens) {
-    return res.json({error: "Not logged in."});
-  }
+  // upload if they've tapped in with a charlie card
 
   var user = rem.oauth(fb).restore(mostRecentTokens);
+  // datauri = req.body.datauri;
+  post_photo(user, function(json) {
+    res.json(json);;
+  });
+});
 
-  var datauri = req.body.datauri;
+app.post('/save_photo', function(req, res) {
+
+  datauri = req.body.datauri;
+  var base64Data = datauri.replace(/^data:image\/png;base64,/,"");
+  var buffer = new Buffer(base64Data, 'base64');
+  fs.writeFileSync('photos/'+ Date.now() + '.png', buffer);
+  res.json("saved");
+});
+
+function post_photo(user, next) {
   // console.log("datauri", datauri);
   var form = new FormData();
   form.append('message', getCaption());
@@ -103,10 +150,10 @@ app.post('/upload', function (req, res) {
   form.append('source', b);
   form.pipe(user('me/photos').post(form.getHeaders()['content-type'], function (err, json) {
     console.log('After upload:', err, json);
-    res.json(json);
+    next(json);
     mostRecentTokens = null; // clear the user
   }));
-});
+}
 
 function getCaption() {
   var captions = ['I took a photo with Photobooth!',
