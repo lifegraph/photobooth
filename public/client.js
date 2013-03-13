@@ -139,7 +139,7 @@ socket.on('pidError', function (errcode) {
     $('#savedPhoto').show();
     $('#savedPhoto').fadeOut(5000);
   } else if (errcode == 406) { // not authed
-    $('#saveMessage').html("Allow access to Photobooth at <a href= \"http://lifegraphconnect.com\">http://lifegraphconnect.com</a>");
+    $('#saveMessage').html("Grant access to Photo Booth at <a href= \"http://lifegraphconnect.com\" style=\"font-size:15px\">http://lifegraphconnect.com</a>");
     $('#savedPhoto').show();
     $('#savedPhoto').fadeOut(5000);
   }
