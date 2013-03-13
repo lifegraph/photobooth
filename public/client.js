@@ -40,6 +40,7 @@ function preSnapshot(){
   // does the countdown
 
   console.log('presnapshot');
+  $('#afterPhoto').hide();
   $("#countdown").show();
 
   var count = 3;
@@ -65,13 +66,7 @@ $(document).keyup(function(e){
   // console.log("e", e.keyCode);
   if(e.keyCode == 32){
     // user has pressed space
-    var notice = $('#notice');
-    if (notice.is(":visible")) {
-      // toggle the visibility
-      notice.toggle();
-    } else {
-      preSnapshot(); // take the picture
-    }
+    preSnapshot(); // take the picture
   }
 });
 
