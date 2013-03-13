@@ -74,6 +74,7 @@ function snapshot() {
 }
 
 function preSnapshot(){
+  console.log('presnapshot');
   if (!videoStarted) {
     $('#saveMessage').html("Press 'Allow' in the bar above first!");
     $('#savedPhoto').show();
@@ -84,7 +85,6 @@ function preSnapshot(){
   if (currentCountdownTimer) {
     clearTimeout(currentCountdownTimer);
   }
-  console.log('presnapshot');
   $('#afterPhoto').hide();
   $("#countdown").show();
 
@@ -146,15 +146,14 @@ socket.on('savedPhoto', function (data) {
   $('#savedPhoto').fadeOut(4000);
 });
 
-socket.on('pidError', function (errcode) {
-  if (errcode == 404) { // not bound
-    $('#saveMessage').html("Sync your card at <a href= \"http://lifegraphconnect.com\">http://lifegraphconnect.com</a>");
+socket.on('pidError', function (errorobj) {
+  console.log(errorobj);
+  if (errorobj.code == 404 || errorobj.code == 406) { // not bound (404) or not authed (406)
+    $('#saveMessage').html("<a href= \"" + errorobj.url + "\">Redirecting to sync card!</a>");
     $('#savedPhoto').show();
-    $('#savedPhoto').fadeOut(6000);
-  } else if (errcode == 406) { // not authed
-    $('#saveMessage').html("Grant access to Photo Booth at <a href= \"http://lifegraphconnect.com\" style=\"font-size:20px\">http://lifegraphconnect.com</a>");
-    $('#savedPhoto').show();
-    $('#savedPhoto').fadeOut(6000);
+    $('#savedPhoto').fadeOut(3000, function() {
+      window.location = errorobj.url;
+    });
   }
 })
 

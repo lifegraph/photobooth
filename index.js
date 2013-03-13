@@ -48,7 +48,6 @@ var oauth = rem.oauth(fb, 'http://' + app.get('host') + '/oauth/callback/');
 app.use(oauth.middleware(function (req, res, next) {
 
   if (mostRecentSocket) {
-    console.log("emitting savedPhoto");
     mostRecentSocket.emit('savedPhoto', {message: "Sending to Facebook"});
   } else {
     console.log("HEY WE DO NOT HAVE A SOCKET???");
@@ -56,16 +55,13 @@ app.use(oauth.middleware(function (req, res, next) {
   console.log("User is now authenticated.");
   var user = oauth.session(req);
   user('me').get(function (err, json) {
-    console.log("You know me!");
     user.saveState(function (state) {
       if (err || !json.id) {
         res.redirect('/error');
       }
 
       // send off the picture to be saved by facebook
-      console.log('poopin');
       post_photo(user, function (json, err) {
-        console.log('postin!');
         var msg; 
         if (!err) {
           msg = "Success! Sent photo to Facebook. Check on phone!";
@@ -78,7 +74,7 @@ app.use(oauth.middleware(function (req, res, next) {
 
         // log the user out after the photo is posted.
         var fbLogoutUri = 'https://www.facebook.com/logout.php?next=http://' + app.get('host') + '/&access_token=' + state.oauthAccessToken;
-        console.log(fbLogoutUri);
+        // console.log(fbLogoutUri);
         res.redirect(fbLogoutUri);
       });
     });
@@ -89,21 +85,21 @@ try {
   lifegraph.configure(process.env.FB_NAMESPACE, process.env.FB_KEY, process.env.FB_SECRET);
 
   // connect lifegraph serial port
-  lifegraph_serial.setPidCallback( function(pid) {
+  lifegraph_serial.setPidCallback( function (pid) {
     lifegraph.connect(pid, function (error, user) {
 
       // There was an error (like the device hasn't been synced yet)
       if (error) {
         if (error == 404) { // not bound
-          console.log({'error': "Physical ID has not been bound to an account. Go to http://connect.lifegraphlabs.com/, Connect with Music Player App, and tap again."});
+          // console.log({'error': "Physical ID has not been bound to an account. Go to http://lifegraphconnect.com/, Connect with Photo Booth, and tap again."});
           if (mostRecentSocket) {
-            mostRecentSocket.emit('pidError', 404);
+            mostRecentSocket.emit('pidError', {code: 404, url: 'http://lifegraphconnect.com/lifegraph-photobooth/sync/' + pid});
           }
           return;
         } else if (error == 406) { // no tokens, no access
           console.log({'error': "No tokens found. User may have revoked access."});
           if (mostRecentSocket) {
-            mostRecentSocket.emit('pidError', 406);
+            mostRecentSocket.emit('pidError', {code: 404, url: 'http://lifegraphconnect.com/lifegraph-photobooth/sync/' + pid});
           }
         }
       } else { // all good. we have a facebook user
