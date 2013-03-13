@@ -74,6 +74,9 @@ function snapshot() {
 }
 
 function preSnapshot(){
+  if (!videoStarted) {
+    return;
+  }
   // does the countdown
   if (currentCountdownTimer) {
     clearTimeout(currentCountdownTimer);
