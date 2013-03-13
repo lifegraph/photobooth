@@ -71,7 +71,7 @@ function startVideo() {
   navigator.getUserMedia({video: true}, function(stream) {
     video.src = window.URL.createObjectURL(stream);
     localMediaStream = stream;
-    $('#got-it').click();
+    $('#notice').hide();
   }, onFailSoHard);
 }
 
@@ -86,10 +86,3 @@ var socket = io.connect('http://localhost');
 socket.on('startPhoto', function () {
   preSnapshot(); // take the picture
 });
-
-// display info message
-$('#got-it').click(function(){
-  $('#notice').hide();
-});
-
-$("#countdown").hide();
