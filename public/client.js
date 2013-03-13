@@ -10,6 +10,8 @@ var withPhysicalToken = false;
 var currentCountdownTimer = null;
 var videoStarted = false;
 
+var allowCameraText = "^ Click 'Allow' up there ^";
+
 $(function() {
   video = document.querySelector('video');
   canvas = document.querySelector('canvas');
@@ -27,7 +29,7 @@ $(function() {
     $('#afterPhoto').hide();
     window.location.href = '/send_to_fb'
   });
-  $('#saveMessage').html("^ Click 'Allow' up there ^");
+  $('#saveMessage').html(allowCameraText);
   $('#savedPhoto').show();
   fadeOutAndInMessage();
   startVideo();
@@ -37,9 +39,14 @@ function fadeOutAndInMessage() {
   if (!videoStarted) {
     $('#savedPhoto').fadeOut(2000, function(){
       if (!videoStarted) {
+        $('#saveMessage').html(allowCameraText);
         $(this).fadeIn(2000, fadeOutAndInMessage);
+      } else {
+        $('#savedPhoto').unbind();
       }
     });
+  } else {
+    $('#savedPhoto').unbind();
   }
 }
 

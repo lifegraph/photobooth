@@ -68,7 +68,7 @@ app.use(oauth.middleware(function (req, res, next) {
         console.log('postin!');
         var msg; 
         if (!err) {
-          msg = "Sucessfully sent photo to Facebook. Check on your phone!";
+          msg = "Success! Sent photo to Facebook. Check on phone!";
         } else {
           msg = "Error sending to Facebook: "+ err;
         }
