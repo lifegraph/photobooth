@@ -46,25 +46,29 @@ var delay_emit = {delay: false, message: {}, signal: ""};
 // created the oauth middleware.
 var oauth = rem.oauth(fb, 'http://' + app.get('host') + '/oauth/callback/');
 app.use(oauth.middleware(function (req, res, next) {
+
   if (mostRecentSocket) {
-  mostRecentSocket.emit('savedPhoto', {message: "Sending to Facebook"});
+    console.log("emitting savedPhoto");
+    mostRecentSocket.emit('savedPhoto', {message: "Sending to Facebook"});
   } else {
     console.log("HEY WE DO NOT HAVE A SOCKET???");
   }
   console.log("User is now authenticated.");
   var user = oauth.session(req);
   user('me').get(function (err, json) {
+    console.log("You know me!");
     user.saveState(function (state) {
       if (err || !json.id) {
         res.redirect('/error');
       }
 
       // send off the picture to be saved by facebook
-      
+      console.log('poopin');
       post_photo(user, function (json, err) {
+        console.log('postin!');
         var msg; 
         if (!err) {
-          msg = "Sucessfully sent photo to Facebook";
+          msg = "Success! Sent photo to Facebook. Check on phone!";
         } else {
           msg = "Error sending to Facebook: "+ err;
         }
@@ -91,9 +95,16 @@ try {
       // There was an error (like the device hasn't been synced yet)
       if (error) {
         if (error == 404) { // not bound
-          return console.log({'error': "Physical ID has not been bound to an account. Go to http://connect.lifegraphlabs.com/, Connect with Music Player App, and tap again."});
+          console.log({'error': "Physical ID has not been bound to an account. Go to http://connect.lifegraphlabs.com/, Connect with Music Player App, and tap again."});
+          if (mostRecentSocket) {
+            mostRecentSocket.emit('pidError', 404);
+          }
+          return;
         } else if (error == 406) { // no tokens, no access
-          return console.log({'error': "No tokens found. User may have revoked access."});
+          console.log({'error': "No tokens found. User may have revoked access."});
+          if (mostRecentSocket) {
+            mostRecentSocket.emit('pidError', 406);
+          }
         }
       } else { // all good. we have a facebook user
         if (mostRecentSocket) {
@@ -148,15 +159,31 @@ app.post('/upload', function (req, res) {
 });
 
 app.post('/save_photo', function(req, res) {
-
   datauri = req.body.datauri;
+  var withPhysicalToken = req.body.withPhysicalToken;
+  console.log('saving photo. with physical?', withPhysicalToken);
   var base64Data = datauri.replace(/^data:image\/png;base64,/,"");
   var buffer = new Buffer(base64Data, 'base64');
   fs.writeFileSync('photos/'+ Date.now() + '.png', buffer);
-  res.json("saved");
+  if (withPhysicalToken == "true") {
+    if (mostRecentTokens) {
+      var user = rem.oauth(fb).restore(mostRecentTokens);
+      // datauri = req.body.datauri;
+      post_photo(user, function(json, err) {
+        res.json(json);
+      });
+    } else {
+      console.log("NO TOKENS??");
+      res.json("no recent tokens");
+    }
+  } else {
+    res.json("saved");
+  }
+  
 });
 
 function post_photo(user, next) {
+  console.log('posting photo')
   // console.log("datauri", datauri);
   var form = new FormData();
   form.append('message', getCaption());
@@ -168,8 +195,8 @@ function post_photo(user, next) {
   form.append('source', b);
   form.pipe(user('me/photos').post(form.getHeaders()['content-type'], function (err, json) {
     console.log('After upload:', err, json);
-    next(json, err);
     mostRecentTokens = null; // clear the user
+    next(json, err);
   }));
 }
 
@@ -187,6 +214,7 @@ function getCaption() {
                   'Thinking of you and making this face.',
                   'Did you get your photo taken today?',
                   'Pics: Therefore, it happened.',
+                  'Poopin\'',
                   'Golly, I love http://lifegraphlabs.com'];
   return captions[Math.floor(Math.random() * captions.length)];
 }
