@@ -56,14 +56,16 @@ app.use(oauth.middleware(function (req, res, next) {
   console.log("User is now authenticated.");
   var user = oauth.session(req);
   user('me').get(function (err, json) {
+    console.log("You know me!");
     user.saveState(function (state) {
       if (err || !json.id) {
         res.redirect('/error');
       }
 
       // send off the picture to be saved by facebook
-      
+      console.log('poopin');
       post_photo(user, function (json, err) {
+        console.log('postin!');
         var msg; 
         if (!err) {
           msg = "Sucessfully sent photo to Facebook";
