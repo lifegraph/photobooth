@@ -46,7 +46,9 @@ var delay_emit = {delay: false, message: {}, signal: ""};
 // created the oauth middleware.
 var oauth = rem.oauth(fb, 'http://' + app.get('host') + '/oauth/callback/');
 app.use(oauth.middleware(function (req, res, next) {
+
   if (mostRecentSocket) {
+    console.log("emitting savedPhoto");
     mostRecentSocket.emit('savedPhoto', {message: "Sending to Facebook"});
   } else {
     console.log("HEY WE DO NOT HAVE A SOCKET???");
@@ -148,9 +150,9 @@ app.post('/upload', function (req, res) {
 });
 
 app.post('/save_photo', function(req, res) {
-
   datauri = req.body.datauri;
-  var withPhysicalToken = req.body.withPhysicalToken;
+  var withPhysicalToken = JSON.parse(req.body.withPhysicalToken);
+  console.log('saving photo. with physical?', withPhysicalToken);
   var base64Data = datauri.replace(/^data:image\/png;base64,/,"");
   var buffer = new Buffer(base64Data, 'base64');
   fs.writeFileSync('photos/'+ Date.now() + '.png', buffer);
