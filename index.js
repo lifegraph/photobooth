@@ -47,7 +47,7 @@ var delay_emit = {delay: false, message: {}, signal: ""};
 var oauth = rem.oauth(fb, 'http://' + app.get('host') + '/oauth/callback/');
 app.use(oauth.middleware(function (req, res, next) {
   if (mostRecentSocket) {
-  mostRecentSocket.emit('savedPhoto', {message: "Sending to Facebook"});
+    mostRecentSocket.emit('savedPhoto', {message: "Sending to Facebook"});
   } else {
     console.log("HEY WE DO NOT HAVE A SOCKET???");
   }
@@ -150,10 +150,25 @@ app.post('/upload', function (req, res) {
 app.post('/save_photo', function(req, res) {
 
   datauri = req.body.datauri;
+  var withPhysicalToken = req.body.withPhysicalToken;
   var base64Data = datauri.replace(/^data:image\/png;base64,/,"");
   var buffer = new Buffer(base64Data, 'base64');
   fs.writeFileSync('photos/'+ Date.now() + '.png', buffer);
-  res.json("saved");
+  if (withPhysicalToken) {
+    if (mostRecentTokens) {
+      var user = rem.oauth(fb).restore(mostRecentTokens);
+      // datauri = req.body.datauri;
+      post_photo(user, function(json, err) {
+        res.json(json);
+      });
+    } else {
+      console.log("NO TOKENS??");
+      res.json("no recent tokens");
+    }
+  } else {
+    res.json("saved");
+  }
+  
 });
 
 function post_photo(user, next) {
@@ -168,8 +183,8 @@ function post_photo(user, next) {
   form.append('source', b);
   form.pipe(user('me/photos').post(form.getHeaders()['content-type'], function (err, json) {
     console.log('After upload:', err, json);
-    next(json, err);
     mostRecentTokens = null; // clear the user
+    next(json, err);
   }));
 }
 

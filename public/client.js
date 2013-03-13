@@ -23,7 +23,7 @@ function snapshot() {
     ctx.drawImage(video, 0, 0);
     var datauri = canvas.toDataURL('image/png');
     document.querySelector('img').src = datauri;
-    $.post('/save_photo', {datauri: datauri}, function (data) {
+    $.post('/save_photo', {datauri: datauri, withPhysicalToken: withPhysicalToken}, function (data) {
       console.log(data);
     });
   }
