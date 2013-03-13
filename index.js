@@ -176,6 +176,7 @@ app.post('/save_photo', function(req, res) {
 });
 
 function post_photo(user, next) {
+  console.log('posting photo')
   // console.log("datauri", datauri);
   var form = new FormData();
   form.append('message', getCaption());
