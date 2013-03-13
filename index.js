@@ -46,7 +46,11 @@ var delay_emit = {delay: false, message: {}, signal: ""};
 // created the oauth middleware.
 var oauth = rem.oauth(fb, 'http://' + app.get('host') + '/oauth/callback/');
 app.use(oauth.middleware(function (req, res, next) {
-
+  if (mostRecentSocket) {
+  mostRecentSocket.emit('savedPhoto', {message: "Sending to Facebook"});
+  } else {
+    console.log("HEY WE DO NOT HAVE A SOCKET???");
+  }
   console.log("User is now authenticated.");
   var user = oauth.session(req);
   user('me').get(function (err, json) {
@@ -67,7 +71,11 @@ app.use(oauth.middleware(function (req, res, next) {
         delay_emit.delay = true;
         delay_emit.message = {"message": msg};
         delay_emit.signal = "savedPhoto";
-        res.redirect('/');
+
+        // log the user out after the photo is posted.
+        var fbLogoutUri = 'https://www.facebook.com/logout.php?next=http://' + app.get('host') + '/&access_token=' + state.oauthAccessToken;
+        console.log(fbLogoutUri);
+        res.redirect(fbLogoutUri);
       });
     });
   });
@@ -121,10 +129,6 @@ io.sockets.on('connection', function (socket) {
 app.get('/', function(req, res) {
   console.log("test");
   res.render('index.jade');
-});
-
-app.get('/login', function(req, res) {
-  res.redirect('/');
 });
 
 app.get('/send_to_fb', oauth.login({

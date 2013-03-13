@@ -40,6 +40,7 @@ function preSnapshot(){
   // does the countdown
 
   console.log('presnapshot');
+  $('#afterPhoto').hide();
   $("#countdown").show();
 
   var count = 3;
@@ -61,19 +62,13 @@ function preSnapshot(){
 
 // video.addEventListener('click', snapshot, false);
 
-$(document).keyup(function(e){
-  // console.log("e", e.keyCode);
-  if(e.keyCode == 32){
-    // user has pressed space
-    var notice = $('#notice');
-    if (notice.is(":visible")) {
-      // toggle the visibility
-      notice.toggle();
-    } else {
-      preSnapshot(); // take the picture
-    }
-  }
-});
+// $(document).keyup(function(e){
+//   // console.log("e", e.keyCode);
+//   if(e.keyCode == 32){
+//     // user has pressed space
+//     preSnapshot(); // take the picture
+//   }
+// });
 
 function startVideo() {
   navigator.getUserMedia({video: true}, function(stream) {
