@@ -144,11 +144,11 @@ socket.on('pidError', function (errcode) {
   if (errcode == 404) { // not bound
     $('#saveMessage').html("Sync your card at <a href= \"http://lifegraphconnect.com\">http://lifegraphconnect.com</a>");
     $('#savedPhoto').show();
-    $('#savedPhoto').fadeOut(5000);
+    $('#savedPhoto').fadeOut(6000);
   } else if (errcode == 406) { // not authed
-    $('#saveMessage').html("Grant access to Photo Booth at <a href= \"http://lifegraphconnect.com\" style=\"font-size:15px\">http://lifegraphconnect.com</a>");
+    $('#saveMessage').html("Grant access to Photo Booth at <a href= \"http://lifegraphconnect.com\" style=\"font-size:20px\">http://lifegraphconnect.com</a>");
     $('#savedPhoto').show();
-    $('#savedPhoto').fadeOut(5000);
+    $('#savedPhoto').fadeOut(6000);
   }
 })
 
