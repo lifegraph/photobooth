@@ -75,6 +75,9 @@ function snapshot() {
 
 function preSnapshot(){
   if (!videoStarted) {
+    $('#saveMessage').html("Press 'Allow' in the bar above first!");
+    $('#savedPhoto').show();
+    $('#savedPhoto').fadeOut(6000);
     return;
   }
   // does the countdown
