@@ -41,6 +41,7 @@ var fb = rem.connect('facebook.com', '1.0').configure({
   secret: process.env.FB_SECRET
 });
 
+var delay_emit = {delay: false, message: "", signal: ""};
 // The oauth middleware intercepts the callback url that we set when we
 // created the oauth middleware.
 var oauth = rem.oauth(fb, 'http://' + app.get('host') + '/oauth/callback/');
@@ -57,8 +58,17 @@ app.use(oauth.middleware(function (req, res, next) {
       // storeCredentials(json.id, state, function () {
       //   res.redirect('/');
       // });
-      post_photo(user, function (json) {
-        res.json(json);;
+      post_photo(user, function (json, err) {
+        var msg; 
+        if (!err) {
+          msg = "Sucessfully sent photo to Facebook";
+        } else {
+          msg = "Error sending to Facebook: "+ err;
+        }
+        delay_emit.delay = true;
+        delay_emit.message = {"message": msg};
+        delay_emit.signal = "savedPhoto";
+        res.redirect('/');
       });
     });
   });
@@ -93,6 +103,10 @@ try {
 
 io.sockets.on('connection', function (socket) {
   mostRecentSocket = socket;
+  if (delay_emit.delay) {
+    delay_emit.delay = false;
+    mostRecentSocket.emit(delay_emit.signal, delay_emit.message);
+  }
   socket.on('disconnect', function () {
     if (mostRecentSocket == socket) {
       mostRecentTokens = null;
@@ -106,6 +120,7 @@ io.sockets.on('connection', function (socket) {
  */
 
 app.get('/', function(req, res) {
+  console.log("test");
   res.render('index.jade');
 });
 
@@ -113,7 +128,7 @@ app.get('/login', function(req, res) {
   res.redirect('/');
 });
 
-app.get('/send_to_fb/', oauth.login({
+app.get('/send_to_fb', oauth.login({
   // upload if they log in via the site
   scope: ['publish_stream']
 }));
@@ -124,8 +139,8 @@ app.post('/upload', function (req, res) {
 
   var user = rem.oauth(fb).restore(mostRecentTokens);
   // datauri = req.body.datauri;
-  post_photo(user, function(json) {
-    res.json(json);;
+  post_photo(user, function(json, err) {
+    res.json(json);
   });
 });
 
@@ -150,7 +165,7 @@ function post_photo(user, next) {
   form.append('source', b);
   form.pipe(user('me/photos').post(form.getHeaders()['content-type'], function (err, json) {
     console.log('After upload:', err, json);
-    next(json);
+    next(json, err);
     mostRecentTokens = null; // clear the user
   }));
 }

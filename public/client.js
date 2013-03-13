@@ -80,6 +80,9 @@ socket.on('startPhoto', function () {
   preSnapshot(); // take the picture
 });
 
+socket.on('savedPhoto', function (data) {
+  console.log("saved", data);
+});
 // display info message
 $('#got-it').click(function(){
   $('#notice').hide();
