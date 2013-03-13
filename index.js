@@ -68,7 +68,7 @@ app.use(oauth.middleware(function (req, res, next) {
         console.log('postin!');
         var msg; 
         if (!err) {
-          msg = "Sucessfully sent photo to Facebook";
+          msg = "Sucessfully sent photo to Facebook. Check on your phone!";
         } else {
           msg = "Error sending to Facebook: "+ err;
         }
@@ -207,6 +207,7 @@ function getCaption() {
                   'Thinking of you and making this face.',
                   'Did you get your photo taken today?',
                   'Pics: Therefore, it happened.',
+                  'Poopin\'',
                   'Golly, I love http://lifegraphlabs.com'];
   return captions[Math.floor(Math.random() * captions.length)];
 }

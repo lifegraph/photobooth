@@ -15,7 +15,6 @@ $(function() {
   ctx = canvas.getContext('2d');
 
   $("#countdown").hide();
-  $(document).click(preSnapshot);
 
   $('#closeAfterPhoto').click(function () {
     $('#afterPhoto').hide();
@@ -27,6 +26,7 @@ $(function() {
     $('#afterPhoto').hide();
     window.location.href = '/send_to_fb'
   });
+  startVideo();
 });
 
 function snapshot() {
@@ -80,19 +80,21 @@ function preSnapshot(){
 
 // video.addEventListener('click', snapshot, false);
 
-$(document).keyup(function(e){
-  // console.log("e", e.keyCode);
-  if(e.keyCode == 32){
-    // user has pressed space
-    preSnapshot(); // take the picture
-  }
-});
-
 function startVideo() {
   navigator.getUserMedia({video: true}, function(stream) {
     video.src = window.URL.createObjectURL(stream);
     localMediaStream = stream;
     $('#notice').hide();
+
+    // allow photos to be taken
+    $(document).click(preSnapshot);
+    $(document).keyup(function(e){
+      // console.log("e", e.keyCode);
+      if(e.keyCode == 32){
+        // user has pressed space
+        preSnapshot(); // take the picture
+      }
+    });
   }, onFailSoHard);
 }
 
@@ -100,8 +102,6 @@ function onFailSoHard(err) {
   alert("You need to allow dat vid, dawg.")
   startVideo();
 }
-
-startVideo();
 
 var socket = io.connect('http://localhost');
 socket.on('startPhoto', function () {
