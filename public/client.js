@@ -1,10 +1,17 @@
+
 window.URL = window.URL || window.webkitURL;
 navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia ||
                       navigator.mozGetUserMedia || navigator.msGetUserMedia;
-var video = document.querySelector('video');
-var canvas = document.querySelector('canvas');
-var ctx = canvas.getContext('2d');
+var video;
+var canvas;
+var ctx;
 var localMediaStream = null;
+
+$(function() {
+  video = document.querySelector('video');
+  canvas = document.querySelector('canvas');
+  ctx = canvas.getContext('2d');
+});
 
 function snapshot() {
   console.log("snapshot");
@@ -64,7 +71,7 @@ function startVideo() {
   navigator.getUserMedia({video: true}, function(stream) {
     video.src = window.URL.createObjectURL(stream);
     localMediaStream = stream;
-    $('#got-it').click();
+    $('#notice').hide();
   }, onFailSoHard);
 }
 
