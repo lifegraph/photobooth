@@ -46,7 +46,6 @@ var delay_emit = {delay: false, message: {}, signal: ""};
 // created the oauth middleware.
 var oauth = rem.oauth(fb, 'http://' + app.get('host') + '/oauth/callback/');
 app.use(oauth.middleware(function (req, res, next) {
-  mostRecentSocket.emit('savedPhoto', {message: "Sending to Facebook"});
 
   console.log("User is now authenticated.");
   var user = oauth.session(req);
