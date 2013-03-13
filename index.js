@@ -151,12 +151,12 @@ app.post('/upload', function (req, res) {
 
 app.post('/save_photo', function(req, res) {
   datauri = req.body.datauri;
-  var withPhysicalToken = JSON.parse(req.body.withPhysicalToken);
+  var withPhysicalToken = req.body.withPhysicalToken;
   console.log('saving photo. with physical?', withPhysicalToken);
   var base64Data = datauri.replace(/^data:image\/png;base64,/,"");
   var buffer = new Buffer(base64Data, 'base64');
   fs.writeFileSync('photos/'+ Date.now() + '.png', buffer);
-  if (withPhysicalToken) {
+  if (withPhysicalToken == "true") {
     if (mostRecentTokens) {
       var user = rem.oauth(fb).restore(mostRecentTokens);
       // datauri = req.body.datauri;
