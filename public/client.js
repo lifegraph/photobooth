@@ -6,6 +6,7 @@ var video;
 var canvas;
 var ctx;
 var localMediaStream = null;
+var withPhysicalToken = false;
 
 $(function() {
   video = document.querySelector('video');
@@ -26,6 +27,13 @@ function snapshot() {
       console.log(data);
     });
   }
+
+  if (!withPhysicalToken) {
+    // if we don't have a physical token, show the post to fb message
+    $('#afterPhoto').show();
+  }
+
+  withPhysicalToken = false;
 }
 
 function preSnapshot(){
@@ -84,15 +92,32 @@ startVideo();
 
 var socket = io.connect('http://localhost');
 socket.on('startPhoto', function () {
+  withPhysicalToken = true;
   preSnapshot(); // take the picture
 });
 
 socket.on('savedPhoto', function (data) {
   console.log("saved", data);
-});
-// display info message
-$('#got-it').click(function(){
-  $('#notice').hide();
+  $('#saveMessage').text(data.message);
+  $('#savedPhoto').show();
+  $('#savedPhoto').fadeOut(4000);
 });
 
-$("#countdown").hide();
+$(document).ready(function () {
+  // display info message
+  $('#got-it').click(function(){
+    $('#notice').hide();
+  });
+
+  $("#countdown").hide();
+
+  $('#closeAfterPhoto').click(function () {
+    $('#afterPhoto').hide();
+  });
+
+  $('#sendToFB').click(function() {
+    console.log("clicked");
+    $('#afterPhoto').hide();  
+  });
+});
+

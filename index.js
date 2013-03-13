@@ -41,11 +41,13 @@ var fb = rem.connect('facebook.com', '1.0').configure({
   secret: process.env.FB_SECRET
 });
 
-var delay_emit = {delay: false, message: "", signal: ""};
+var delay_emit = {delay: false, message: {}, signal: ""};
 // The oauth middleware intercepts the callback url that we set when we
 // created the oauth middleware.
 var oauth = rem.oauth(fb, 'http://' + app.get('host') + '/oauth/callback/');
 app.use(oauth.middleware(function (req, res, next) {
+  mostRecentSocket.emit('savedPhoto', {message: "Sending to Facebook"});
+
   console.log("User is now authenticated.");
   var user = oauth.session(req);
   user('me').get(function (err, json) {
@@ -55,9 +57,7 @@ app.use(oauth.middleware(function (req, res, next) {
       }
 
       // send off the picture to be saved by facebook
-      // storeCredentials(json.id, state, function () {
-      //   res.redirect('/');
-      // });
+      
       post_photo(user, function (json, err) {
         var msg; 
         if (!err) {
