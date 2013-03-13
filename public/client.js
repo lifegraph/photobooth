@@ -64,11 +64,12 @@ function startVideo() {
   navigator.getUserMedia({video: true}, function(stream) {
     video.src = window.URL.createObjectURL(stream);
     localMediaStream = stream;
+    $('#got-it').click();
   }, onFailSoHard);
 }
 
 function onFailSoHard(err) {
-  alert("You need to allow it, dawg.")
+  alert("You need to allow dat vid, dawg.")
   startVideo();
 }
 
