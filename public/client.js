@@ -8,6 +8,7 @@ var ctx;
 var localMediaStream = null;
 var withPhysicalToken = false;
 var currentCountdownTimer = null;
+var videoStarted = false;
 
 $(function() {
   video = document.querySelector('video');
@@ -26,8 +27,21 @@ $(function() {
     $('#afterPhoto').hide();
     window.location.href = '/send_to_fb'
   });
+  $('#saveMessage').html("^ Click 'Allow' up there ^");
+  $('#savedPhoto').show();
+  fadeOutAndInMessage();
   startVideo();
 });
+
+function fadeOutAndInMessage() {
+  if (!videoStarted) {
+    $('#savedPhoto').fadeOut(2000, function(){
+      if (!videoStarted) {
+        $(this).fadeIn(2000, fadeOutAndInMessage);
+      }
+    });
+  }
+}
 
 function snapshot() {
   console.log("snapshot");
@@ -82,9 +96,12 @@ function preSnapshot(){
 
 function startVideo() {
   navigator.getUserMedia({video: true}, function(stream) {
+    videoStarted = true;
+
     video.src = window.URL.createObjectURL(stream);
     localMediaStream = stream;
     $('#notice').hide();
+    $('#savedPhoto').hide();
 
     // allow photos to be taken
     $(document).click(preSnapshot);
